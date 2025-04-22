@@ -1,11 +1,13 @@
 using UnityEngine;
+using DG.Tweening;
+
 
 [ExecuteInEditMode]
 public class HexHoverHandler : MonoBehaviour
 {
-    public float scaleFactor = 1.1f;
+    public float scaleFactor = 5f;
     private bool hasInitialized = false;
-    private Vector3 initialScale;
+    private float initialScaleY;
 
     private void OnMouseEnter()
     {
@@ -21,9 +23,11 @@ public class HexHoverHandler : MonoBehaviour
     {
         if (!hasInitialized)
         {
-            initialScale = transform.localScale;
+            initialScaleY = transform.localScale[1];
             hasInitialized = true;
         }
-        transform.localScale = status ? initialScale * scaleFactor : initialScale;
+        transform.DOScaleY(status ? initialScaleY * scaleFactor : initialScaleY, 1);
+        // transform.DOScale(status ? initialScale * scaleFactor : initialScale, 1);
+        // transform.localScale = status ? initialScale * scaleFactor : initialScale;
     }
 }
