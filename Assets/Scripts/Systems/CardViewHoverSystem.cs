@@ -22,7 +22,7 @@ public class CardViewHoverSystem : Singleton<CardViewHoverSystem>
         moveTween?.Kill();
         scaleTween?.Kill();
         moveTween = cardViewHover.transform.DOMove(position, moveDuration).SetEase(hoverEase);
-        // scaleTween = cardViewHover.transform.DOScale(Vector3.one * scaleUpFactor, moveDuration);
+        scaleTween = cardViewHover.transform.DOScale(Vector3.one * scaleUpFactor, moveDuration);
     }
 
     public void Hide(Vector3 position)
@@ -31,7 +31,7 @@ public class CardViewHoverSystem : Singleton<CardViewHoverSystem>
         moveTween?.Kill();
         scaleTween?.Kill();
         moveTween = cardViewHover.transform.DOMove(position, moveDuration).SetEase(hoverEase);
-        // scaleTween = cardViewHover.transform.DOScale(Vector3.one, moveDuration).SetEase(hoverEase);
+        scaleTween = cardViewHover.transform.DOScale(Vector3.one, moveDuration).SetEase(hoverEase);
         cardViewHover.gameObject.SetActive(false);
     }
 }

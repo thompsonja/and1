@@ -7,34 +7,57 @@ using UnityEngine.Splines;
 public class HandView : MonoBehaviour
 {
     [SerializeField] private SplineContainer splineContainer;
-    private readonly List<CardView> cards = new();
+    private readonly Dictionary<PlayerController, PlayerHand> playerHands = new();
     public int maxCards = 10;
     public float duration = 0.15f;
-    public GameObject parent;
+    public GameObject handPrefab;
 
-    public IEnumerator AddCard(CardView cardView)
+    private void Start()
     {
-        cardView.transform.SetParent(parent.transform, true);
-        cards.Add(cardView);
-        yield return UpdateCardPositions();
+        GameSystem.Instance.AddListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, OnPlayerSelectedChanged);
     }
 
-    private IEnumerator UpdateCardPositions()
+    private void OnDestroy()
     {
-        if (cards.Count == 0) yield break;
-        float cardSpacing = 1f / maxCards;
-        float firstCardPosition = 0.5f - (cards.Count - 1) * cardSpacing / 2;
-        Spline spline = splineContainer.Spline;
-        for (int i = 0; i < cards.Count; i++)
+        if (GameSystem.Instance)
         {
-            float pos = firstCardPosition + i * cardSpacing;
-            Vector3 splinePosition = spline.EvaluatePosition(pos);
-            Vector3 forward = spline.EvaluateTangent(pos);
-            Vector3 up = spline.EvaluateUpVector(pos);
-            Quaternion rotation = Quaternion.LookRotation(-up, Vector3.Cross(-up, forward).normalized);
-            cards[i].transform.DOMove(splinePosition + transform.position + 0.01f * i * Vector3.back, duration);
-            cards[i].transform.DORotate(rotation.eulerAngles, duration);
+            GameSystem.Instance.RemoveListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, OnPlayerSelectedChanged);
         }
-        yield return new WaitForSeconds(duration);
+    }
+
+    private void OnPlayerSelectedChanged(PlayerController player)
+    {
+        // Hide all hands
+        foreach (var hand in playerHands.Values)
+        {
+            hand.Hide();
+        }
+
+        // Show selected player's hand
+        if (player != null && playerHands.TryGetValue(player, out var selectedHand))
+        {
+            selectedHand.Show();
+        }
+    }
+
+    public void RegisterPlayer(PlayerController player)
+    {
+        if (!playerHands.ContainsKey(player))
+        {
+            GameObject handObject = Instantiate(handPrefab, transform);
+            PlayerHand hand = handObject.GetComponent<PlayerHand>();
+            hand.maxCards = maxCards;
+            hand.parent = handObject;
+            playerHands[player] = hand;
+            hand.Hide(); // Start hidden
+        }
+    }
+
+    public IEnumerator AddCard(PlayerController player, CardView cardView)
+    {
+        if (playerHands.TryGetValue(player, out var hand))
+        {
+            yield return hand.AddCard(cardView);
+        }
     }
 }
