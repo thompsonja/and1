@@ -7,10 +7,9 @@ using UnityEngine.Splines;
 public class HandView : MonoBehaviour
 {
     [SerializeField] private SplineContainer splineContainer;
-    private readonly Dictionary<PlayerController, PlayerHand> playerHands = new();
+    private readonly List<CardView> cards = new();
     public int maxCards = 10;
     public float duration = 0.15f;
-    public GameObject handPrefab;
 
     private void Start()
     {
@@ -27,37 +26,42 @@ public class HandView : MonoBehaviour
 
     private void OnPlayerSelectedChanged(PlayerController player)
     {
-        // Hide all hands
-        foreach (var hand in playerHands.Values)
-        {
-            hand.Hide();
-        }
-
-        // Show selected player's hand
-        if (player != null && playerHands.TryGetValue(player, out var selectedHand))
-        {
-            selectedHand.Show();
-        }
+        // Clear the current hand when player changes
+        ClearHand();
     }
 
-    public void RegisterPlayer(PlayerController player)
+    public IEnumerator AddCard(CardView cardView)
     {
-        if (!playerHands.ContainsKey(player))
-        {
-            GameObject handObject = Instantiate(handPrefab, transform);
-            PlayerHand hand = handObject.GetComponent<PlayerHand>();
-            hand.maxCards = maxCards;
-            hand.parent = handObject;
-            playerHands[player] = hand;
-            hand.Hide(); // Start hidden
-        }
+        cardView.transform.SetParent(transform, true);
+        cards.Add(cardView);
+        yield return UpdateCardPositions();
     }
 
-    public IEnumerator AddCard(PlayerController player, CardView cardView)
+    private IEnumerator UpdateCardPositions()
     {
-        if (playerHands.TryGetValue(player, out var hand))
+        if (cards.Count == 0) yield break;
+        float cardSpacing = 1f / maxCards;
+        float firstCardPosition = 0.5f - (cards.Count - 1) * cardSpacing / 2;
+        Spline spline = splineContainer.Spline;
+        for (int i = 0; i < cards.Count; i++)
         {
-            yield return hand.AddCard(cardView);
+            float pos = firstCardPosition + i * cardSpacing;
+            Vector3 splinePosition = spline.EvaluatePosition(pos);
+            Vector3 forward = spline.EvaluateTangent(pos);
+            Vector3 up = spline.EvaluateUpVector(pos);
+            Quaternion rotation = Quaternion.LookRotation(-up, Vector3.Cross(-up, forward).normalized);
+            cards[i].transform.DOMove(splinePosition + transform.position + 0.01f * i * Vector3.back, duration);
+            cards[i].transform.DORotate(rotation.eulerAngles, duration);
         }
+        yield return new WaitForSeconds(duration);
+    }
+
+    private void ClearHand()
+    {
+        foreach (var card in cards)
+        {
+            Destroy(card.gameObject);
+        }
+        cards.Clear();
     }
 }

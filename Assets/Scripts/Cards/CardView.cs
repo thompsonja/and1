@@ -24,8 +24,6 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log("OnPointerEnter");
-        Debug.Log(transform.position);
         Vector3 pos = transform.position + Vector3.up * 50;
 
         CardViewHoverSystem.Instance.Show(CardModel, pos);

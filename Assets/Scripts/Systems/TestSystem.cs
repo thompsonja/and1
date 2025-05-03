@@ -2,13 +2,18 @@ using UnityEngine;
 
 public class TestSystem : MonoBehaviour
 {
-    [SerializeField] private HandView handView;
     [SerializeField] private CardData cardData;
+    private PlayerController selectedPlayer = null;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        GameSystem.Instance.AddListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, UpdateSelectedPlayer);
+    }
 
+    private void UpdateSelectedPlayer(PlayerController selectedPlayer)
+    {
+        this.selectedPlayer = selectedPlayer;
     }
 
     // Update is called once per frame
@@ -16,9 +21,7 @@ public class TestSystem : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            CardModel cardModel = new(cardData);
-            CardView cardView = CardViewCreator.Instance.CreateCardView(cardModel, transform.position, Quaternion.identity, 0.15f);
-            StartCoroutine(handView.AddCard(cardView));
+            HandSystem.Instance.DrawCard(cardData);
         }
     }
 }
