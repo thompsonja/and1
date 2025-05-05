@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Splines;
@@ -35,6 +36,20 @@ public class HandView : MonoBehaviour
         cardView.transform.SetParent(transform, true);
         cards.Add(cardView);
         yield return UpdateCardPositions();
+    }
+
+    public CardView RemoveCard(CardModel card)
+    {
+        CardView cardView = GetCardView(card);
+        if (cardView == null) return null;
+        cards.Remove(cardView);
+        StartCoroutine(UpdateCardPositions());
+        return cardView;
+    }
+
+    private CardView GetCardView(CardModel card)
+    {
+        return cards.Where(c => c.CardModel == card).FirstOrDefault();
     }
 
     private IEnumerator UpdateCardPositions()

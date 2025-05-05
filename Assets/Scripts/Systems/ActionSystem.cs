@@ -19,8 +19,6 @@ public class ActionSystem : Singleton<ActionSystem>
     // Hold logic for game actions
     private static Dictionary<Type, Func<GameAction, IEnumerator>> performers = new();
 
-
-
     public void Perform(GameAction action, Action OnPerformFinished = null)
     {
         if (IsPerforming) return;
@@ -31,6 +29,7 @@ public class ActionSystem : Singleton<ActionSystem>
             OnPerformFinished?.Invoke();
         }));
     }
+
     private IEnumerator Flow(GameAction action, Action OnFlowFinished = null)
     {
         // Set reactions to pre reactions for current action, so that

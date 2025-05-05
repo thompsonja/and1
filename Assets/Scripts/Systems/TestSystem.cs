@@ -1,27 +1,33 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class TestSystem : MonoBehaviour
 {
-    [SerializeField] private CardData cardData;
-    private PlayerController selectedPlayer = null;
+    [SerializeField] private List<CardData> deckData;
+    [SerializeField] private int startingHandSize;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        GameSystem.Instance.AddListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, UpdateSelectedPlayer);
-    }
+        PlayerController[] controllers = FindObjectsByType<PlayerController>(FindObjectsSortMode.InstanceID);
+        foreach (var c in controllers)
+        {
+            CardSystem.Instance.Setup(c, deckData);
+        }
 
-    private void UpdateSelectedPlayer(PlayerController selectedPlayer)
-    {
-        this.selectedPlayer = selectedPlayer;
+        GameSystem.Instance.SetSelectedPlayer(controllers.Where(c => c.name == "Player 1").First());
+
+        ActionSystem.Instance.Perform(new DrawCardsGA(startingHandSize));
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            HandSystem.Instance.DrawCard(cardData);
-        }
+        // if (Input.GetKeyDown(KeyCode.Space))
+        // {
+        //     HandSystem.Instance.DrawCard(cardData);
+        // }
     }
 }
