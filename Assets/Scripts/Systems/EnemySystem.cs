@@ -1,16 +1,22 @@
 using System.Collections;
 using UnityEngine;
 
-public class EnemySystem : MonoBehaviour
+public class EnemySystem : Singleton<EnemySystem>
 {
-    void OnEnable()
+    public override void Init()
     {
+        Debug.Log("EnemySystem Init");
+        base.Init();
         ActionSystem.AttachPerformer<EnemyTurnGA>(EnemyTurnPerformer);
     }
 
-    void OnDisable()
+    public override void Stop()
     {
-        ActionSystem.DetachPerformer<EnemyTurnGA>();
+        if (Initialized)
+        {
+            ActionSystem.DetachPerformer<EnemyTurnGA>();
+        }
+        base.Stop();
     }
 
     // Performers

@@ -14,11 +14,16 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         Instance = this as T;
     }
 
-    protected virtual void OnApplicationQuit()
+    // Implement in subclasses to enforce ordering at the GameSystem level
+    public virtual void Init() { Initialized = true; }
+
+    public virtual void Stop()
     {
         Instance = null;
         Destroy(gameObject);
     }
+
+    protected bool Initialized;
 }
 
 public abstract class PersistentSingleton<T> : Singleton<T> where T : MonoBehaviour

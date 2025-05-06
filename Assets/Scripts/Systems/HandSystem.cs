@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class HandSystem : Singleton<HandSystem>
@@ -7,10 +5,20 @@ public class HandSystem : Singleton<HandSystem>
     [SerializeField] private HandView handView;
     private PlayerController selectedPlayer = null;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public override void Init()
     {
+        Debug.Log("HandSystem Init");
         GameSystem.Instance.AddListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, UpdateSelectedPlayer);
+        base.Init();
+    }
+
+    public override void Stop()
+    {
+        if (Initialized)
+        {
+            GameSystem.Instance.RemoveListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, UpdateSelectedPlayer);
+        }
+        base.Stop();
     }
 
     private void UpdateSelectedPlayer(PlayerController selectedPlayer)

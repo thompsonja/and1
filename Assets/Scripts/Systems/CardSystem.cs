@@ -17,20 +17,29 @@ public class CardSystem : Singleton<CardSystem>
     private readonly Dictionary<string, List<CardModel>> hands = new();
     private PlayerController selectedPlayer = null;
 
-    void OnEnable()
+    public override void Init()
     {
+        Debug.Log("CardSystem Init");
         ActionSystem.AttachPerformer<DrawCardsGA>(DrawCardsPerformer);
         ActionSystem.AttachPerformer<DiscardAllCardsGA>(DiscardAllCardsPerformer);
         ActionSystem.SubscribeReaction<EnemyTurnGA>(EnemyTurnPreReaction, ReactionTiming.PRE);
         ActionSystem.SubscribeReaction<EnemyTurnGA>(EnemyTurnPostReaction, ReactionTiming.POST);
+        GameSystem.Instance.AddListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, UpdateSelectedPlayer);
+        base.Init();
     }
 
-    void OnDisable()
+    public override void Stop()
     {
-        ActionSystem.DetachPerformer<DrawCardsGA>();
-        ActionSystem.DetachPerformer<DiscardAllCardsGA>();
-        ActionSystem.UnsubscribeReaction<EnemyTurnGA>(EnemyTurnPreReaction, ReactionTiming.PRE);
-        ActionSystem.UnsubscribeReaction<EnemyTurnGA>(EnemyTurnPostReaction, ReactionTiming.POST);
+        if (Initialized)
+        {
+            ActionSystem.DetachPerformer<DrawCardsGA>();
+            ActionSystem.DetachPerformer<DiscardAllCardsGA>();
+            ActionSystem.UnsubscribeReaction<EnemyTurnGA>(EnemyTurnPreReaction, ReactionTiming.PRE);
+            ActionSystem.UnsubscribeReaction<EnemyTurnGA>(EnemyTurnPostReaction, ReactionTiming.POST);
+            GameSystem.Instance.RemoveListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, UpdateSelectedPlayer);
+        }
+
+        base.Stop();
     }
 
     public void Setup(PlayerController controller, List<CardData> deckData)
@@ -43,18 +52,40 @@ public class CardSystem : Singleton<CardSystem>
             CardModel cardModel = new(card);
             drawPiles[controller.name].Add(cardModel);
         }
-        Debug.Log($"Setup: {controller.name}, draw pile length {drawPiles[controller.name].Count}");
-    }
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        GameSystem.Instance.AddListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, UpdateSelectedPlayer);
     }
 
     private void UpdateSelectedPlayer(PlayerController selectedPlayer)
     {
         this.selectedPlayer = selectedPlayer;
+    }
+
+    private bool Validate(string debugString)
+    {
+        if (selectedPlayer == null)
+        {
+            Debug.Log($"CardSystem Validate ({debugString}): selectedPlayer is null");
+            return false;
+        }
+
+        if (!discardPiles.ContainsKey(selectedPlayer.name))
+        {
+            Debug.Log($"CardSystem Validate ({debugString}): {selectedPlayer.name} not found in discard piles");
+            return false;
+        }
+
+        if (!drawPiles.ContainsKey(selectedPlayer.name))
+        {
+            Debug.Log($"CardSystem Validate ({debugString}): {selectedPlayer.name} not found in draw piles");
+            return false;
+        }
+
+        if (!hands.ContainsKey(selectedPlayer.name))
+        {
+            Debug.Log($"CardSystem Validate ({debugString}): {selectedPlayer.name} not found in hands");
+            return false;
+        }
+
+        return true;
     }
 
     // Reactions
@@ -77,12 +108,10 @@ public class CardSystem : Singleton<CardSystem>
 
     private IEnumerator DrawCardsPerformer(DrawCardsGA drawCardsGA)
     {
-        if (selectedPlayer == null || !drawPiles.ContainsKey(selectedPlayer.name))
-        {
-            Debug.Log($"DrawCardsPerformer: selectedPlayer is {selectedPlayer.name}");
-        }
+        if (!Validate("DrawCardsPerformer")) yield break;
         int actualAmount = Mathf.Min(drawCardsGA.Amount, drawPiles[selectedPlayer.name].Count);
         int notDrawnAmount = drawCardsGA.Amount - actualAmount;
+        Debug.Log($"DrawCardsPerformer: {drawCardsGA.Amount} cards");
         for (int i = 0; i < actualAmount; i++)
         {
             yield return DrawCard();
@@ -99,35 +128,30 @@ public class CardSystem : Singleton<CardSystem>
 
     private void RefillDeck()
     {
-        if (selectedPlayer == null || !drawPiles.ContainsKey(selectedPlayer.name))
-        {
-            Debug.Log($"RefillDeck: selectedPlayer is {selectedPlayer.name}");
-        }
+        if (!Validate("RefillDeck")) return;
         drawPiles[selectedPlayer.name].AddRange(discardPiles[selectedPlayer.name]);
         discardPiles[selectedPlayer.name].Clear();
     }
 
     private IEnumerator DrawCard()
     {
-        if (selectedPlayer == null || !drawPiles.ContainsKey(selectedPlayer.name) || !hands.ContainsKey(selectedPlayer.name))
-        {
-            Debug.Log($"DrawCard: selectedPlayer is {selectedPlayer.name}");
-            yield break;
-        }
+        if (!Validate("DrawCard")) yield break;
         CardModel card = drawPiles[selectedPlayer.name].Draw();
+        Debug.Log($"CardSystem: Drawing card {card.Title}");
         hands[selectedPlayer.name].Add(card);
         CardView cardView = CardViewCreator.Instance.CreateCardView(card, drawPilePoint.position, drawPilePoint.rotation, duration);
-        Debug.Log($"Player {selectedPlayer.name} drew card {card}");
+        if (cardView == null)
+        {
+            Debug.LogError("CardSystem: Failed to create card view!");
+            yield break;
+        }
+        Debug.Log($"CardSystem: Adding card {card.Title} to hand");
         yield return handView.AddCard(cardView);
     }
 
     private IEnumerator DiscardAllCardsPerformer(DiscardAllCardsGA discardAllCardsGA)
     {
-        if (selectedPlayer == null || !hands.ContainsKey(selectedPlayer.name))
-        {
-            Debug.Log($"DiscardAllCardsPerformer: selectedPlayer is {selectedPlayer.name}");
-            yield break;
-        }
+        if (!Validate("DiscardAllCardsPerformer")) yield break;
         foreach (var card in hands[selectedPlayer.name])
         {
             discardPiles[selectedPlayer.name].Add(card);

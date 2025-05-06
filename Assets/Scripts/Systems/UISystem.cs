@@ -1,18 +1,24 @@
 using TMPro;
+using UnityEngine;
 
 public class UISystem : Singleton<UISystem>
 {
     public TMP_Text selectedPlayerName;
 
-    private void Start()
+    public override void Init()
     {
+        Debug.Log("UISystem Init");
         GameSystem.Instance.AddListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, UpdateSelectedPlayer);
+        base.Init();
     }
 
-    private void OnDisable()
+    public override void Stop()
     {
-        if (!GameSystem.Instance) return;
-        GameSystem.Instance.RemoveListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, UpdateSelectedPlayer);
+        if (Initialized)
+        {
+            GameSystem.Instance.RemoveListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, UpdateSelectedPlayer);
+        }
+        base.Stop();
     }
 
     private void UpdateSelectedPlayer(PlayerController selectedPlayer)

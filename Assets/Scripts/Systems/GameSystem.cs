@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using UnityEngine;
 
 public class GameSystem : Singleton<GameSystem>
 {
@@ -12,6 +14,7 @@ public class GameSystem : Singleton<GameSystem>
 
     public void SetSelectedPlayer(PlayerController player)
     {
+        UnityEngine.Debug.Log("SetSelectedPlayer called");
         selectedPlayer = player;
         TriggerEvent(GameEvent.PlayerSelectedChanged, player);
     }
