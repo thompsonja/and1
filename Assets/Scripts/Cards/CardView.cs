@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -28,11 +29,22 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
         CardViewHoverSystem.Instance.Show(CardModel, pos);
         // wrapper.SetActive(false);
+
+        // var cg = wrapper.GetComponent<CanvasGroup>();
+        // cg.alpha = 0;
+        // cg.interactable = false;
+        // cg.blocksRaycasts = false;
+
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         CardViewHoverSystem.Instance.Hide(transform.position);
         // wrapper.SetActive(true);
+
+        // var cg = wrapper.GetComponent<CanvasGroup>();
+        // cg.alpha = 1;
+        // cg.interactable = true;
+        // cg.blocksRaycasts = true;
     }
 }

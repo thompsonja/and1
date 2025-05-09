@@ -23,6 +23,7 @@ public class CardViewHoverSystem : Singleton<CardViewHoverSystem>
         scaleTween?.Kill();
         moveTween = cardViewHover.transform.DOMove(position, moveDuration).SetEase(hoverEase);
         scaleTween = cardViewHover.transform.DOScale(Vector3.one * scaleUpFactor, moveDuration);
+        cardViewHover.transform.SetAsLastSibling();
     }
 
     public void Hide(Vector3 position)
