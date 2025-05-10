@@ -28,23 +28,15 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         Vector3 pos = transform.position + Vector3.up * 50;
 
         CardViewHoverSystem.Instance.Show(CardModel, pos);
-        // wrapper.SetActive(false);
 
-        // var cg = wrapper.GetComponent<CanvasGroup>();
-        // cg.alpha = 0;
-        // cg.interactable = false;
-        // cg.blocksRaycasts = false;
-
+        var cg = wrapper.GetComponent<CanvasGroup>();
+        cg.alpha = 0;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         CardViewHoverSystem.Instance.Hide(transform.position);
-        // wrapper.SetActive(true);
-
-        // var cg = wrapper.GetComponent<CanvasGroup>();
-        // cg.alpha = 1;
-        // cg.interactable = true;
-        // cg.blocksRaycasts = true;
+        var cg = wrapper.GetComponent<CanvasGroup>();
+        cg.alpha = 1;
     }
 }
