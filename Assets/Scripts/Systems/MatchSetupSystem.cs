@@ -23,6 +23,7 @@ public class MatchSetupSystem : MonoBehaviour
         EnemySystem.Instance.Init();
         HandSystem.Instance.Init();
         UISystem.Instance.Init();
+        Interactions.Instance.Init();
         initialized = true;
     }
 
@@ -55,6 +56,7 @@ public class MatchSetupSystem : MonoBehaviour
     void OnApplicationQuit()
     {
         if (!initialized) return;
+        Interactions.Instance?.Stop();
         UISystem.Instance?.Stop();
         HandSystem.Instance?.Stop();
         EnemySystem.Instance?.Stop();
