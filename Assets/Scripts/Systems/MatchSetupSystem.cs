@@ -21,7 +21,6 @@ public class MatchSetupSystem : MonoBehaviour
         CardViewHoverSystem.Instance.Init();
         CardViewCreator.Instance.Init();
         EnemySystem.Instance.Init();
-        HandSystem.Instance.Init();
         UISystem.Instance.Init();
         Interactions.Instance.Init();
         initialized = true;
@@ -44,13 +43,18 @@ public class MatchSetupSystem : MonoBehaviour
         GameSystem.Instance.SetSelectedPlayer(player1);
 
         // Wait for next frame to ensure all systems are properly initialized
-        StartCoroutine(DrawStartingHand());
+        StartCoroutine(DrawStartingHand(controllers));
     }
 
-    private IEnumerator DrawStartingHand()
+    private IEnumerator DrawStartingHand(PlayerController[] controllers)
     {
         yield return null; // Wait for next frame
-        ActionSystem.Instance.Perform(new DrawCardsGA(startingHandSize));
+        foreach (var p in controllers)
+        {
+            bool actionComplete = false;
+            ActionSystem.Instance.Perform(new DrawCardsGA(startingHandSize, p.name), () => actionComplete = true);
+            yield return new WaitUntil(() => actionComplete);
+        }
     }
 
     void OnApplicationQuit()
@@ -58,7 +62,6 @@ public class MatchSetupSystem : MonoBehaviour
         if (!initialized) return;
         Interactions.Instance?.Stop();
         UISystem.Instance?.Stop();
-        HandSystem.Instance?.Stop();
         EnemySystem.Instance?.Stop();
         CardSystem.Instance?.Stop();
         CardViewHoverSystem.Instance?.Stop();

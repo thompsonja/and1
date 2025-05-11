@@ -12,25 +12,6 @@ public class HandView : MonoBehaviour
     public int maxCards = 10;
     public float duration = 0.15f;
 
-    private void Start()
-    {
-        GameSystem.Instance.AddListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, OnPlayerSelectedChanged);
-    }
-
-    private void OnDestroy()
-    {
-        if (GameSystem.Instance)
-        {
-            GameSystem.Instance.RemoveListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, OnPlayerSelectedChanged);
-        }
-    }
-
-    private void OnPlayerSelectedChanged(PlayerController player)
-    {
-        // Clear the current hand when player changes
-        ClearHand();
-    }
-
     public IEnumerator AddCard(CardView cardView)
     {
         cardView.transform.SetParent(transform, true);
@@ -71,7 +52,7 @@ public class HandView : MonoBehaviour
         yield return new WaitForSeconds(duration);
     }
 
-    private void ClearHand()
+    public void ClearHand()
     {
         foreach (var card in cards)
         {

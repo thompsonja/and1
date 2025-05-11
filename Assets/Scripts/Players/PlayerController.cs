@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 public class PlayerController : MonoBehaviour, IPointerDownHandler
 {
     public float speed = 5f;
+    public bool enemyTeam = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

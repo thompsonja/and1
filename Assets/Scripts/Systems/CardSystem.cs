@@ -16,6 +16,7 @@ public class CardSystem : Singleton<CardSystem>
     private readonly Dictionary<string, List<CardModel>> discardPiles = new();
     private readonly Dictionary<string, List<CardModel>> hands = new();
     private PlayerController selectedPlayer = null;
+    private readonly List<PlayerController> players = new();
 
     public override void Init()
     {
@@ -46,6 +47,7 @@ public class CardSystem : Singleton<CardSystem>
 
     public void Setup(PlayerController controller, List<CardData> deckData)
     {
+        players.Add(controller);
         drawPiles[controller.name] = new();
         discardPiles[controller.name] = new();
         hands[controller.name] = new();
@@ -59,6 +61,9 @@ public class CardSystem : Singleton<CardSystem>
     private void UpdateSelectedPlayer(PlayerController selectedPlayer)
     {
         this.selectedPlayer = selectedPlayer;
+        handView.ClearHand();
+
+        StartCoroutine(AddCardViews(hands[this.selectedPlayer.name]));
     }
 
     private bool Validate(string debugString)
@@ -95,15 +100,23 @@ public class CardSystem : Singleton<CardSystem>
     // Performed before enemy turn
     private void EnemyTurnPreReaction(EnemyTurnGA enemyTurnGA)
     {
-        DiscardAllCardsGA discardAllCardsGA = new();
-        ActionSystem.Instance.AddReaction(discardAllCardsGA);
+        foreach (var c in players)
+        {
+            if (c.enemyTeam) continue;
+            DiscardAllCardsGA discardAllCardsGA = new(c.name);
+            ActionSystem.Instance.AddReaction(discardAllCardsGA);
+        }
     }
 
     // Performed after enemy turn
     private void EnemyTurnPostReaction(EnemyTurnGA enemyTurnGA)
     {
-        DrawCardsGA drawCardsGA = new(5);
-        ActionSystem.Instance.AddReaction(drawCardsGA);
+        foreach (var controller in players)
+        {
+            if (controller.enemyTeam) continue;
+            DrawCardsGA drawCardsGA = new(5, controller.name);
+            ActionSystem.Instance.AddReaction(drawCardsGA);
+        }
     }
 
     // Performers
@@ -126,14 +139,14 @@ public class CardSystem : Singleton<CardSystem>
         Debug.Log($"DrawCardsPerformer: {drawCardsGA.Amount} cards");
         for (int i = 0; i < actualAmount; i++)
         {
-            yield return DrawCard();
+            yield return DrawCard(drawCardsGA.PlayerName);
         }
         if (notDrawnAmount > 0)
         {
             RefillDeck();
             for (int i = 0; i < notDrawnAmount; i++)
             {
-                yield return DrawCard();
+                yield return DrawCard(drawCardsGA.PlayerName);
             }
         }
     }
@@ -145,32 +158,47 @@ public class CardSystem : Singleton<CardSystem>
         discardPiles[selectedPlayer.name].Clear();
     }
 
-    private IEnumerator DrawCard()
+    private IEnumerator DrawCard(string playerName)
     {
         if (!Validate("DrawCard")) yield break;
-        CardModel card = drawPiles[selectedPlayer.name].Draw();
+        CardModel card = drawPiles[playerName].Draw();
         Debug.Log($"CardSystem: Drawing card {card.Title}");
-        hands[selectedPlayer.name].Add(card);
-        CardView cardView = CardViewCreator.Instance.CreateCardView(card, drawPilePoint.position, drawPilePoint.rotation, duration);
-        if (cardView == null)
+        hands[playerName].Add(card);
+
+        if (playerName == selectedPlayer.name)
         {
-            Debug.LogError("CardSystem: Failed to create card view!");
-            yield break;
+            yield return AddCardViews(new List<CardModel> { card });
         }
-        Debug.Log($"CardSystem: Adding card {card.Title} to hand");
-        yield return handView.AddCard(cardView);
+    }
+
+    private IEnumerator AddCardViews(List<CardModel> cards)
+    {
+        foreach (var card in cards)
+        {
+            CardView cardView = CardViewCreator.Instance.CreateCardView(card, drawPilePoint.position, drawPilePoint.rotation, duration);
+            if (cardView == null)
+            {
+                Debug.LogError("CardSystem: Failed to create card view!");
+                yield break;
+            }
+            Debug.Log($"CardSystem: Adding card {card.Title} to hand");
+            yield return handView.AddCard(cardView);
+        }
     }
 
     private IEnumerator DiscardAllCardsPerformer(DiscardAllCardsGA discardAllCardsGA)
     {
         if (!Validate("DiscardAllCardsPerformer")) yield break;
-        foreach (var card in hands[selectedPlayer.name])
+        foreach (var card in hands[discardAllCardsGA.PlayerName])
         {
-            discardPiles[selectedPlayer.name].Add(card);
-            CardView cardView = handView.RemoveCard(card);
-            yield return DiscardCard(cardView);
+            discardPiles[discardAllCardsGA.PlayerName].Add(card);
+            if (discardAllCardsGA.PlayerName == selectedPlayer.name)
+            {
+                CardView cardView = handView.RemoveCard(card);
+                yield return DiscardCard(cardView);
+            }
         }
-        hands[selectedPlayer.name].Clear();
+        hands[discardAllCardsGA.PlayerName].Clear();
     }
 
     private IEnumerator DiscardCard(CardView cardView)
