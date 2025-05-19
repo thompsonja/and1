@@ -25,6 +25,15 @@ public class MatchSetupSystem : MonoBehaviour
         UISystem.Instance.Init();
         Interactions.Instance.Init();
         initialized = true;
+
+        GameSystem.Instance.MinimumLogLevel = LogLevel.WARN;
+        ActionSystem.Instance.MinimumLogLevel = LogLevel.WARN;
+        CardSystem.Instance.MinimumLogLevel = LogLevel.WARN;
+        CardViewHoverSystem.Instance.MinimumLogLevel = LogLevel.WARN;
+        EffectSystem.Instance.MinimumLogLevel = LogLevel.WARN;
+        EnemySystem.Instance.MinimumLogLevel = LogLevel.WARN;
+        UISystem.Instance.MinimumLogLevel = LogLevel.WARN;
+        Interactions.Instance.MinimumLogLevel = LogLevel.WARN;
     }
 
     void Start()

@@ -87,7 +87,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         if (playingAreaCamera.rect.Contains(new Vector2(Input.mousePosition.x / Screen.width, Input.mousePosition.y / Screen.height)))
         {
             Debug.Log("Dropping card in playing area");
-            PlayCardGA playCardGA = new(CardModel);
+            PlayCardGA playCardGA = new(CardModel, null);
             ActionSystem.Instance.Perform(playCardGA);
         }
         else

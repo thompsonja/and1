@@ -1,13 +1,13 @@
 using TMPro;
 using UnityEngine;
 
-public class UISystem : Singleton<UISystem>
+public class UISystem : BaseSystem<UISystem>
 {
     public TMP_Text selectedPlayerName;
 
     public override void Init()
     {
-        Debug.Log("UISystem Init");
+        LogInfo("UISystem Init");
         GameSystem.Instance.AddListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, UpdateSelectedPlayer);
         base.Init();
     }

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public class GameSystem : Singleton<GameSystem>
+public class GameSystem : BaseSystem<GameSystem>
 {
     public enum GameEvent
     {
@@ -11,7 +11,7 @@ public class GameSystem : Singleton<GameSystem>
 
     public void SetSelectedPlayer(PlayerController player)
     {
-        UnityEngine.Debug.Log("SetSelectedPlayer called");
+        LogInfo("SetSelectedPlayer called");
         TriggerEvent(GameEvent.PlayerSelectedChanged, player);
     }
 

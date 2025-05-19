@@ -4,8 +4,12 @@ public class PlayCardGA : GameAction
 {
     public CardModel Card { get; set; }
 
-    public PlayCardGA(CardModel card)
+    // If null, PlayerName refers to the selected player
+    public string PlayerName { get; set; }
+
+    public PlayCardGA(CardModel card, string playerName)
     {
         Card = card;
+        PlayerName = playerName;
     }
 }

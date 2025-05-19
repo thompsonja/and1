@@ -1,11 +1,11 @@
 using System.Collections;
 using UnityEngine;
 
-public class EnemySystem : Singleton<EnemySystem>
+public class EnemySystem : BaseSystem<EnemySystem>
 {
     public override void Init()
     {
-        Debug.Log("EnemySystem Init");
+        LogInfo("EnemySystem Init");
         base.Init();
         ActionSystem.AttachPerformer<EnemyTurnGA>(EnemyTurnPerformer);
     }
@@ -23,8 +23,8 @@ public class EnemySystem : Singleton<EnemySystem>
 
     private IEnumerator EnemyTurnPerformer(EnemyTurnGA enemyTurnGA)
     {
-        Debug.Log("Enemy Turn");
+        LogInfo("Enemy Turn");
         yield return new WaitForSeconds(2f);
-        Debug.Log("Enemy Turn Ended");
+        LogInfo("Enemy Turn Ended");
     }
 }

@@ -1,10 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
 
-public class ActionSystem : Singleton<ActionSystem>
+public class ActionSystem : BaseSystem<ActionSystem>
 {
     private List<GameAction> reactions = null;
 

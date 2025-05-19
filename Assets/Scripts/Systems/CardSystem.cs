@@ -1,11 +1,9 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using DG.Tweening;
 using UnityEngine;
 
-public class CardSystem : Singleton<CardSystem>
+public class CardSystem : BaseSystem<CardSystem>
 {
     [SerializeField] private HandView handView;
     [SerializeField] private Transform drawPilePoint;
@@ -20,7 +18,7 @@ public class CardSystem : Singleton<CardSystem>
 
     public override void Init()
     {
-        Debug.Log("CardSystem Init");
+        LogInfo("CardSystem Init");
         ActionSystem.AttachPerformer<DrawCardsGA>(DrawCardsPerformer);
         ActionSystem.AttachPerformer<DiscardAllCardsGA>(DiscardAllCardsPerformer);
         ActionSystem.AttachPerformer<PlayCardGA>(PlayCardPerformer);
@@ -66,29 +64,29 @@ public class CardSystem : Singleton<CardSystem>
         StartCoroutine(AddCardViews(hands[this.selectedPlayer.name]));
     }
 
-    private bool Validate(string debugString)
+    private bool Validate(string debugString, string playerName)
     {
         if (selectedPlayer == null)
         {
-            Debug.Log($"CardSystem Validate ({debugString}): selectedPlayer is null");
+            LogError($"CardSystem Validate ({debugString}): selectedPlayer is null");
             return false;
         }
 
-        if (!discardPiles.ContainsKey(selectedPlayer.name))
+        if (!discardPiles.ContainsKey(playerName))
         {
-            Debug.Log($"CardSystem Validate ({debugString}): {selectedPlayer.name} not found in discard piles");
+            LogError($"CardSystem Validate ({debugString}): {playerName} not found in discard piles");
             return false;
         }
 
-        if (!drawPiles.ContainsKey(selectedPlayer.name))
+        if (!drawPiles.ContainsKey(playerName))
         {
-            Debug.Log($"CardSystem Validate ({debugString}): {selectedPlayer.name} not found in draw piles");
+            LogError($"CardSystem Validate ({debugString}): {playerName} not found in draw piles");
             return false;
         }
 
-        if (!hands.ContainsKey(selectedPlayer.name))
+        if (!hands.ContainsKey(playerName))
         {
-            Debug.Log($"CardSystem Validate ({debugString}): {selectedPlayer.name} not found in hands");
+            LogError($"CardSystem Validate ({debugString}): {playerName} not found in hands");
             return false;
         }
 
@@ -123,8 +121,8 @@ public class CardSystem : Singleton<CardSystem>
 
     private IEnumerator PlayCardPerformer(PlayCardGA playCardGA)
     {
-        if (!Validate("PlayCardPerformer")) yield break;
-        hands[selectedPlayer.name].Remove(playCardGA.Card);
+        if (!Validate("PlayCardPerformer", playCardGA.PlayerName)) yield break;
+        hands[playCardGA.PlayerName].Remove(playCardGA.Card);
         CardView cardView = handView.RemoveCard(playCardGA.Card);
         yield return DiscardCard(cardView);
 
@@ -137,17 +135,17 @@ public class CardSystem : Singleton<CardSystem>
 
     private IEnumerator DrawCardsPerformer(DrawCardsGA drawCardsGA)
     {
-        if (!Validate("DrawCardsPerformer")) yield break;
-        int actualAmount = Mathf.Min(drawCardsGA.Amount, drawPiles[selectedPlayer.name].Count);
+        if (!Validate("DrawCardsPerformer", drawCardsGA.PlayerName)) yield break;
+        int actualAmount = Mathf.Min(drawCardsGA.Amount, drawPiles[drawCardsGA.PlayerName].Count);
         int notDrawnAmount = drawCardsGA.Amount - actualAmount;
-        Debug.Log($"DrawCardsPerformer: {drawCardsGA.Amount} cards");
+        LogInfo($"DrawCardsPerformer: {drawCardsGA.Amount} cards: actual {actualAmount}, notDrawn {notDrawnAmount}");
         for (int i = 0; i < actualAmount; i++)
         {
             yield return DrawCard(drawCardsGA.PlayerName);
         }
         if (notDrawnAmount > 0)
         {
-            RefillDeck();
+            RefillDeck(drawCardsGA.PlayerName);
             for (int i = 0; i < notDrawnAmount; i++)
             {
                 yield return DrawCard(drawCardsGA.PlayerName);
@@ -155,18 +153,19 @@ public class CardSystem : Singleton<CardSystem>
         }
     }
 
-    private void RefillDeck()
+    private void RefillDeck(string playerName)
     {
-        if (!Validate("RefillDeck")) return;
-        drawPiles[selectedPlayer.name].AddRange(discardPiles[selectedPlayer.name]);
-        discardPiles[selectedPlayer.name].Clear();
+        if (!Validate("RefillDeck", playerName)) return;
+        LogInfo($"RefillDeck called for {playerName}");
+        drawPiles[playerName].AddRange(discardPiles[playerName]);
+        discardPiles[playerName].Clear();
     }
 
     private IEnumerator DrawCard(string playerName)
     {
-        if (!Validate("DrawCard")) yield break;
+        if (!Validate("DrawCard", playerName)) yield break;
         CardModel card = drawPiles[playerName].Draw();
-        Debug.Log($"CardSystem: Drawing card {card.Title}");
+        LogInfo($"CardSystem: Drawing card {card.Title}");
         hands[playerName].Add(card);
 
         if (playerName == selectedPlayer.name)
@@ -182,17 +181,17 @@ public class CardSystem : Singleton<CardSystem>
             CardView cardView = CardViewCreator.Instance.CreateCardView(card, drawPilePoint.position, drawPilePoint.rotation, duration);
             if (cardView == null)
             {
-                Debug.LogError("CardSystem: Failed to create card view!");
+                LogError("CardSystem: Failed to create card view!");
                 yield break;
             }
-            Debug.Log($"CardSystem: Adding card {card.Title} to hand");
+            LogInfo($"CardSystem: Adding card {card.Title} to hand");
             yield return handView.AddCard(cardView);
         }
     }
 
     private IEnumerator DiscardAllCardsPerformer(DiscardAllCardsGA discardAllCardsGA)
     {
-        if (!Validate("DiscardAllCardsPerformer")) yield break;
+        if (!Validate("DiscardAllCardsPerformer", discardAllCardsGA.PlayerName)) yield break;
         foreach (var card in hands[discardAllCardsGA.PlayerName])
         {
             discardPiles[discardAllCardsGA.PlayerName].Add(card);

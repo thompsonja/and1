@@ -1,7 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 
-public class CardViewHoverSystem : Singleton<CardViewHoverSystem>
+public class CardViewHoverSystem : BaseSystem<CardViewHoverSystem>
 {
     [SerializeField] private CardView cardViewHover;
     [SerializeField] private float moveDuration = 0.15f;
