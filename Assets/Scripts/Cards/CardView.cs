@@ -40,9 +40,9 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         if (!Interactions.Instance.PlayerCanHover()) return;
 
-        Vector3 pos = transform.position + Vector3.up * 50;
+        Vector3 end = transform.position + Vector3.up * 50;
 
-        CardViewHoverSystem.Instance.Show(CardModel, pos);
+        CardViewHoverSystem.Instance.Show(CardModel, transform.position, end);
         canvasGroup.alpha = 0;
     }
 
@@ -50,7 +50,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         if (!Interactions.Instance.PlayerCanHover()) return;
 
-        CardViewHoverSystem.Instance.Hide(transform.position);
+        CardViewHoverSystem.Instance.Hide(canvasGroup, transform);
         canvasGroup.alpha = 1;
     }
 
@@ -59,7 +59,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         if (!Interactions.Instance.PlayerCanInteract()) return;
         Interactions.Instance.PlayerIsDragging = true;
 
-        CardViewHoverSystem.Instance.Hide(transform.position);
+        CardViewHoverSystem.Instance.Hide(canvasGroup, transform);
         canvasGroup.alpha = 1;
 
         var parentRectTransform = rectTransform.parent as RectTransform;

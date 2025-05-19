@@ -24,5 +24,5 @@ MonoBehaviour:
     - rid: 3228487631821340923
       type: {class: DrawCardsEffect, ns: , asm: Assembly-CSharp}
       data:
-        drawAmount: 0
+        drawAmount: 2
         playerName: Player 1

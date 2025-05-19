@@ -13,7 +13,7 @@ public class CardViewHoverSystem : Singleton<CardViewHoverSystem>
 
     private bool isHovering = false;
 
-    public void Show(CardModel card, Vector3 position)
+    public void Show(CardModel card, Vector3 startPos, Vector3 endPos)
     {
         if (isHovering) return;
         isHovering = true;
@@ -21,18 +21,25 @@ public class CardViewHoverSystem : Singleton<CardViewHoverSystem>
         cardViewHover.Setup(card);
         moveTween?.Kill();
         scaleTween?.Kill();
-        moveTween = cardViewHover.transform.DOMove(position, moveDuration).SetEase(hoverEase);
-        scaleTween = cardViewHover.transform.DOScale(Vector3.one * scaleUpFactor, moveDuration);
+        cardViewHover.transform.position = startPos;
+        moveTween = cardViewHover.transform.DOMove(endPos, moveDuration).SetEase(hoverEase);
+        scaleTween = cardViewHover.transform.DOScale(Vector3.one * scaleUpFactor, moveDuration).SetEase(hoverEase);
         cardViewHover.transform.SetAsLastSibling();
     }
 
-    public void Hide(Vector3 position)
+    public void Hide(CanvasGroup canvasGroup, Transform transform)
     {
         isHovering = false;
         moveTween?.Kill();
         scaleTween?.Kill();
-        moveTween = cardViewHover.transform.DOMove(position, moveDuration).SetEase(hoverEase);
-        scaleTween = cardViewHover.transform.DOScale(Vector3.one, moveDuration).SetEase(hoverEase);
-        cardViewHover.gameObject.SetActive(false);
+        moveTween = cardViewHover.transform.DOMove(transform.position, moveDuration).SetEase(hoverEase);
+        scaleTween = cardViewHover.transform.DOScale(Vector3.one, moveDuration).SetEase(hoverEase).OnComplete(() =>
+        {
+            if (canvasGroup)
+            {
+                canvasGroup.alpha = 1;
+            }
+            cardViewHover.gameObject.SetActive(false);
+        });
     }
 }
