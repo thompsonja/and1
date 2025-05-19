@@ -16,3 +16,7 @@ MonoBehaviour:
   <Energy>k__BackingField: 2
   <Image>k__BackingField: {fileID: 21300000, guid: 53775e26ddbe7f56c956528ebd2cacbc, type: 3}
   <Title>k__BackingField: Fireball
+  <Effects>k__BackingField: []
+  references:
+    version: 2
+    RefIds: []

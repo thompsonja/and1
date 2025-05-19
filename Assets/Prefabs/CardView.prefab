@@ -531,6 +531,7 @@ MonoBehaviour:
   energy: {fileID: 8230871845682395444}
   image: {fileID: 5422850557508088005}
   wrapper: {fileID: 2083139803184483522}
+  playingAreaCamera: {fileID: 0}
 --- !u!210 &3148430946960272606
 SortingGroup:
   m_ObjectHideFlags: 0

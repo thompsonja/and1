@@ -20,6 +20,7 @@ public class MatchSetupSystem : MonoBehaviour
         CardSystem.Instance.Init();
         CardViewHoverSystem.Instance.Init();
         CardViewCreator.Instance.Init();
+        EffectSystem.Instance.Init();
         EnemySystem.Instance.Init();
         UISystem.Instance.Init();
         Interactions.Instance.Init();
@@ -63,6 +64,7 @@ public class MatchSetupSystem : MonoBehaviour
         Interactions.Instance?.Stop();
         UISystem.Instance?.Stop();
         EnemySystem.Instance?.Stop();
+        EffectSystem.Instance?.Stop();
         CardSystem.Instance?.Stop();
         CardViewHoverSystem.Instance?.Stop();
         CardViewCreator.Instance?.Stop();

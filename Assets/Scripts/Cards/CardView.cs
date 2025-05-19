@@ -21,6 +21,8 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     private CanvasGroup canvasGroup;
     private RectTransform rectTransform;
 
+    public Camera playingAreaCamera;
+
     public void Setup(CardModel cardModel)
     {
         CardModel = cardModel;
@@ -28,6 +30,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         description.text = cardModel.Description;
         energy.text = cardModel.Energy.ToString();
         image.sprite = cardModel.Image;
+        playingAreaCamera = GameObject.FindWithTag("MainCamera")?.GetComponent<Camera>();
 
         canvasGroup = wrapper.GetComponent<CanvasGroup>();
         rectTransform = GetComponent<RectTransform>();
@@ -80,8 +83,10 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     public void OnPointerUp(PointerEventData eventData)
     {
         if (!Interactions.Instance.PlayerCanInteract()) return;
-        if (Physics.Raycast(transform.position, Vector3.forward, out RaycastHit hit, 10f))
+        // if (Physics.Raycast(transform.position, Vector3.forward, out RaycastHit hit, 10f))
+        if (playingAreaCamera.rect.Contains(new Vector2(Input.mousePosition.x / Screen.width, Input.mousePosition.y / Screen.height)))
         {
+            Debug.Log("Dropping card in playing area");
             PlayCardGA playCardGA = new(CardModel);
             ActionSystem.Instance.Perform(playCardGA);
         }

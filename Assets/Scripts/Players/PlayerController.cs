@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour, IPointerDownHandler
 {
-    public float speed = 5f;
+    // public float speed = 5f;
     public bool enemyTeam = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -15,11 +15,11 @@ public class PlayerController : MonoBehaviour, IPointerDownHandler
     // Update is called once per frame
     void Update()
     {
-        float moveX = Input.GetAxis("Horizontal");
-        float moveZ = Input.GetAxis("Vertical");
+        // float moveX = Input.GetAxis("Horizontal");
+        // float moveZ = Input.GetAxis("Vertical");
 
-        Vector3 move = new Vector3(moveX, 0, moveZ) * speed * Time.deltaTime;
-        transform.Translate(move, Space.World);
+        // Vector3 move = new Vector3(moveX, 0, moveZ) * speed * Time.deltaTime;
+        // transform.Translate(move, Space.World);
     }
 
     public void OnPointerDown(PointerEventData eventData)
