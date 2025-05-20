@@ -5,25 +5,25 @@ public class CardViewCreator : Singleton<CardViewCreator>
 {
     [SerializeField] private CardView cardViewPrefab;
 
-    public override void Init()
+    public override void Init(string instanceName, LogLevel level)
     {
-        Debug.Log("CardViewCreator Init");
+        base.Init(instanceName, level);
         if (cardViewPrefab == null)
         {
-            Debug.LogError("CardViewCreator: cardViewPrefab is not assigned!");
+            LogError("cardViewPrefab is not assigned!");
         }
-        base.Init();
+        InitComplete();
     }
 
     public CardView CreateCardView(CardModel cardModel, Vector3 position, Quaternion rotation, float duration)
     {
         if (cardViewPrefab == null)
         {
-            Debug.LogError("CardViewCreator: Cannot create card view - prefab is null!");
+            LogError("Cannot create card view - prefab is null!");
             return null;
         }
 
-        Debug.Log($"CardViewCreator: Creating card view for {cardModel.Title} at {position}");
+        LogInfo($"Creating card view for {cardModel.Title} at {position}");
         CardView cardView = Instantiate(cardViewPrefab, position, rotation);
         cardView.transform.localScale = Vector3.zero;
         cardView.transform.DOScale(Vector3.one, duration);

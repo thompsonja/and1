@@ -65,6 +65,9 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         var parentRectTransform = rectTransform.parent as RectTransform;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRectTransform, eventData.position, null, out dragOffset);
 
+        // Calculate the offset from the card's center to the clicked point
+        dragOffset = rectTransform.anchoredPosition - dragOffset;
+
         dragStartPosition = rectTransform.anchoredPosition3D;
         dragStartRotation = rectTransform.localRotation;
         transform.rotation = Quaternion.Euler(0, 0, 0);
@@ -76,7 +79,7 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         var parentRectTransform = rectTransform.parent as RectTransform;
         if (RectTransformUtility.ScreenPointToLocalPointInRectangle(parentRectTransform, eventData.position, null, out Vector2 localMousePosition))
         {
-            rectTransform.anchoredPosition = localMousePosition - dragOffset;
+            rectTransform.anchoredPosition = localMousePosition + dragOffset;
         }
     }
 
@@ -86,7 +89,6 @@ public class CardView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         // if (Physics.Raycast(transform.position, Vector3.forward, out RaycastHit hit, 10f))
         if (playingAreaCamera.rect.Contains(new Vector2(Input.mousePosition.x / Screen.width, Input.mousePosition.y / Screen.height)))
         {
-            Debug.Log("Dropping card in playing area");
             PlayCardGA playCardGA = new(CardModel, null);
             ActionSystem.Instance.Perform(playCardGA);
         }

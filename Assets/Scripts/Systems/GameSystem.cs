@@ -1,13 +1,18 @@
 using System;
 using System.Collections.Generic;
 
-public class GameSystem : BaseSystem<GameSystem>
+public class GameSystem : Singleton<GameSystem>
 {
     public enum GameEvent
     {
         PlayerSelectedChanged,
     }
 
+    public override void Init(string instanceName, LogLevel level)
+    {
+        base.Init(instanceName, level);
+        InitComplete();
+    }
 
     public void SetSelectedPlayer(PlayerController player)
     {

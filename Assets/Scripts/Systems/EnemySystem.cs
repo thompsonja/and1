@@ -1,13 +1,13 @@
 using System.Collections;
 using UnityEngine;
 
-public class EnemySystem : BaseSystem<EnemySystem>
+public class EnemySystem : Singleton<EnemySystem>
 {
-    public override void Init()
+    public override void Init(string instanceName, LogLevel level)
     {
-        LogInfo("EnemySystem Init");
-        base.Init();
+        base.Init(instanceName, level);
         ActionSystem.AttachPerformer<EnemyTurnGA>(EnemyTurnPerformer);
+        InitComplete();
     }
 
     public override void Stop()

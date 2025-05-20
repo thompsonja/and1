@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class ActionSystem : BaseSystem<ActionSystem>
+public class ActionSystem : Singleton<ActionSystem>
 {
     private List<GameAction> reactions = null;
 
@@ -16,6 +16,12 @@ public class ActionSystem : BaseSystem<ActionSystem>
 
     // Hold logic for game actions
     private static Dictionary<Type, Func<GameAction, IEnumerator>> performers = new();
+
+    public override void Init(string instanceName, LogLevel level)
+    {
+        base.Init(instanceName, level);
+        InitComplete();
+    }
 
     public void Perform(GameAction action, Action OnPerformFinished = null)
     {

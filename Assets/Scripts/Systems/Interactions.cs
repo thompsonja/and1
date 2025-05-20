@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public class Interactions : BaseSystem<Interactions>
+public class Interactions : Singleton<Interactions>
 {
     public bool PlayerIsDragging { get; set; } = false;
 
-    public override void Init()
+    public override void Init(string instanceName, LogLevel level)
     {
-        LogInfo("Interactions Init");
-        base.Init();
+        base.Init(instanceName, level);
+        InitComplete();
     }
 
     public override void Stop()

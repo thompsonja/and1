@@ -15,25 +15,17 @@ public class MatchSetupSystem : MonoBehaviour
     {
         if (initialized) return;
 
-        GameSystem.Instance.Init();
-        ActionSystem.Instance.Init();
-        CardSystem.Instance.Init();
-        CardViewHoverSystem.Instance.Init();
-        CardViewCreator.Instance.Init();
-        EffectSystem.Instance.Init();
-        EnemySystem.Instance.Init();
-        UISystem.Instance.Init();
-        Interactions.Instance.Init();
+        var defaultLogLevel = LogLevel.INFO;
+        GameSystem.Instance.Init("GameSystem", defaultLogLevel);
+        ActionSystem.Instance.Init("ActionSystem", defaultLogLevel);
+        EffectSystem.Instance.Init("EffectSystem", defaultLogLevel);
+        CardSystem.Instance.Init("CardSystem", defaultLogLevel);
+        CardViewHoverSystem.Instance.Init("CardViewHoverSystem", defaultLogLevel);
+        CardViewCreator.Instance.Init("CardViewCreator", defaultLogLevel);
+        EnemySystem.Instance.Init("EnemySystem", defaultLogLevel);
+        UISystem.Instance.Init("UISystem", defaultLogLevel);
+        Interactions.Instance.Init("Interactions", defaultLogLevel);
         initialized = true;
-
-        GameSystem.Instance.MinimumLogLevel = LogLevel.WARN;
-        ActionSystem.Instance.MinimumLogLevel = LogLevel.WARN;
-        CardSystem.Instance.MinimumLogLevel = LogLevel.WARN;
-        CardViewHoverSystem.Instance.MinimumLogLevel = LogLevel.WARN;
-        EffectSystem.Instance.MinimumLogLevel = LogLevel.WARN;
-        EnemySystem.Instance.MinimumLogLevel = LogLevel.WARN;
-        UISystem.Instance.MinimumLogLevel = LogLevel.WARN;
-        Interactions.Instance.MinimumLogLevel = LogLevel.WARN;
     }
 
     void Start()
@@ -73,10 +65,10 @@ public class MatchSetupSystem : MonoBehaviour
         Interactions.Instance?.Stop();
         UISystem.Instance?.Stop();
         EnemySystem.Instance?.Stop();
-        EffectSystem.Instance?.Stop();
         CardSystem.Instance?.Stop();
         CardViewHoverSystem.Instance?.Stop();
         CardViewCreator.Instance?.Stop();
+        EffectSystem.Instance?.Stop();
         ActionSystem.Instance?.Stop();
         GameSystem.Instance?.Stop();
     }

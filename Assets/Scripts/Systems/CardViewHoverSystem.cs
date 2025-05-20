@@ -1,7 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 
-public class CardViewHoverSystem : BaseSystem<CardViewHoverSystem>
+public class CardViewHoverSystem : Singleton<CardViewHoverSystem>
 {
     [SerializeField] private CardView cardViewHover;
     [SerializeField] private float moveDuration = 0.15f;
@@ -12,6 +12,12 @@ public class CardViewHoverSystem : BaseSystem<CardViewHoverSystem>
     private Tween scaleTween;
 
     private bool isHovering = false;
+
+    public override void Init(string instanceName, LogLevel level)
+    {
+        base.Init(instanceName, level);
+        InitComplete();
+    }
 
     public void Show(CardModel card, Vector3 startPos, Vector3 endPos)
     {

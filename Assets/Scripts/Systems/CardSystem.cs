@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
-public class CardSystem : BaseSystem<CardSystem>
+public class CardSystem : Singleton<CardSystem>
 {
     [SerializeField] private HandView handView;
     [SerializeField] private Transform drawPilePoint;
@@ -16,16 +16,16 @@ public class CardSystem : BaseSystem<CardSystem>
     private PlayerController selectedPlayer = null;
     private readonly List<PlayerController> players = new();
 
-    public override void Init()
+    public override void Init(string instanceName, LogLevel level)
     {
-        LogInfo("CardSystem Init");
+        base.Init(instanceName, level);
         ActionSystem.AttachPerformer<DrawCardsGA>(DrawCardsPerformer);
         ActionSystem.AttachPerformer<DiscardAllCardsGA>(DiscardAllCardsPerformer);
         ActionSystem.AttachPerformer<PlayCardGA>(PlayCardPerformer);
         ActionSystem.SubscribeReaction<EnemyTurnGA>(EnemyTurnPreReaction, ReactionTiming.PRE);
         ActionSystem.SubscribeReaction<EnemyTurnGA>(EnemyTurnPostReaction, ReactionTiming.POST);
         GameSystem.Instance.AddListener<PlayerController>(GameSystem.GameEvent.PlayerSelectedChanged, UpdateSelectedPlayer);
-        base.Init();
+        InitComplete();
     }
 
     public override void Stop()
@@ -121,6 +121,15 @@ public class CardSystem : BaseSystem<CardSystem>
 
     private IEnumerator PlayCardPerformer(PlayCardGA playCardGA)
     {
+        if (playCardGA.PlayerName == null)
+        {
+            // this is an ugly special case
+            if (selectedPlayer == null)
+            {
+                LogError("PlayCardPerformer: selectedPlayer is null");
+            }
+            playCardGA.PlayerName = selectedPlayer.name;
+        }
         if (!Validate("PlayCardPerformer", playCardGA.PlayerName)) yield break;
         hands[playCardGA.PlayerName].Remove(playCardGA.Card);
         CardView cardView = handView.RemoveCard(playCardGA.Card);

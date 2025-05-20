@@ -1,13 +1,13 @@
 using System.Collections;
 using UnityEngine;
 
-public class EffectSystem : BaseSystem<EffectSystem>
+public class EffectSystem : Singleton<EffectSystem>
 {
-    public override void Init()
+    public override void Init(string instanceName, LogLevel level)
     {
-        LogInfo("EffectSystem Init");
-        base.Init();
+        base.Init(instanceName, level);
         ActionSystem.AttachPerformer<PerformEffectGA>(PerformEffectPerformer);
+        InitComplete();
     }
 
     public override void Stop()
